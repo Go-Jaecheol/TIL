@@ -128,3 +128,65 @@ ex) GUI, batch, command line 등
   - 성능이 상대적으로 안좋음  
   (Monolithic에서는 request&response가 한 번씩만 일어나면 되는데, Microkernel에서는 여러번 일어나기 때문에)  
   
+---
+
+
+### 📞 System Calls
+
+Program이 직접 작업을 할 수 없기 때문에, system call (Interrupt Mechanism)을 통해 OS에게 요청(request)  
+
+* #### System Call의 3가지 기능  
+  1. User mode에 있는 응용 프로그램이 커널의 기능을 사용할 수 있게 해줌  
+  2. System Call을 통해 User mode에서 Kernel mode로 전환  
+  3. 커널에서 시스템 호출이 끝나면, Kernel mode에서 User mode로 돌아가서 작업 계속 진행  
+  
+---
+
+### 🔗 System Call & API 관계
+
+System Call을 직접 호출할 수 있지만, 실제로는 보통 library function(API)를 통해 System Call을 간접적으로 사용함  
+(대표적으로 libc(리눅스 계열 라이브러리)가 있는데 libc를 통해 system call을 호출, 이때 하나의 libc가 system call을 여러 개 호출할 수도 있고 반대가 될 수도 있다.)  
+
+> ***그러면 왜 API를 더 많이 사용할까 ???***
+
+  - System call은 너무 하위 레벨이기 때문에, 부가적인 작업이 많이 필요해서 까다롭다.  
+  - Portability를 위해! (다른 환경에서도 쉽게 컴파일 될 수 있도록)  
+  (API는 함수의 이름이나 파라미터와 같은 프로토 타입이 불변하기 때문에 여러 환경에서 사용 가능)  
+
+---
+
+### ⚙️ System Call Interface
+
+<img src="https://images.velog.io/images/jfe/post/1d629af1-1a53-4b1d-9bcd-d72add738f22/System%20call%20interface.png" width="700">
+
+1. User application이 API 함수를 통해 system call을 호출  
+2. User mode에서 Kernel mode로 **mode switch**  
+3. 해당 함수에 맞는 system call을 system call function pointers에서 찾은 후  
+4. application이 요구한 값을 return  
+> *이 과정에서 사용자는 system call이 어떻게 구현되어 있는지는 알 필요 x*  
+(Interface와 이게 어떤 값을 return 하는지만 알면 됨)  
+
+---
+
+### 📂 System Call 종류
+
+* Process control  
+* File manipulation  
+* Device manipulation  
+* Information maintenance  
+* Communications  
+* Protection  
+
+---
+
+### ✉️ System Call : Communications
+
+* #### Message passing
+  - 메세지를 직접 주고 받음, 소켓 프로그래밍(send, receive)  
+  - 대상이 누군지 분명히 알고 있어야 함  
+  - connection을 먼저 만들어진 상태여야 함  
+  
+* #### Shared-memory model  
+  - 공유 공간을 이용해서 메세지를 공유 (메모리에 적는 방법이 훨씬 성능이 좋음)  
+  - 원래 서로 다른 프로세스는 메모리가 철저히 분리되어 있어서 상대방 메모리를 볼 수 없지만  
+  - Shared-memory는 예외 케이스 (특정 일부 공간을 프로세스끼리 공유)  
